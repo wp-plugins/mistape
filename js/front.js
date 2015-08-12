@@ -38,6 +38,7 @@
 		reportSpellError: function(report) {
 			var nonce = mistapeArgs.nonce;
 			if ( report.hasOwnProperty('selection') && report.hasOwnProperty('context') && nonce) {
+				Deco_Mistape.dlg.toggle();
 				$.ajax({
 					type: 'post',
 					dataType: 'json',
@@ -48,11 +49,9 @@
 						context: report.context,
 						nonce: nonce
 					},
-					success: function (response) {
-						if (response) {
-							Deco_Mistape.dlg.toggle();
-						}
-					}
+					/*success: function (response) {
+						// for later use
+					}*/
 				})
 			}
 		}

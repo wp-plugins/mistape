@@ -2,7 +2,7 @@
 /*
 Plugin Name: Mistape
 Description: Mistape allows users to effortlessly notify site staff about found spelling errors.
-Version: 1.0.0
+Version: 1.0.1
 Author URI: https://deco.agency
 Author: deco.agency
 License: MIT License
@@ -13,6 +13,7 @@ Domain Path: /languages
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
@@ -28,7 +29,7 @@ $mistape = new Deco_Mistape();
  * Deco_Mistape class
  *
  * @class Deco_Mistape
- * @version	1.0.2
+ * @version	1.0.1
  */
 class Deco_Mistape {
 
@@ -46,7 +47,7 @@ class Deco_Mistape {
 		'caption_image_url'		=> '',
 		'first_run'				=> 'yes'
 	);
-	private $version			= '1.0.2';
+	private $version			= '1.0.1';
 	private $recipient_email	= null;
 	private $email_recipient_types	= array();
 	private $caption_formats	= array();
@@ -470,7 +471,7 @@ class Deco_Mistape {
 		wp_enqueue_script( 'mistape-front-modal-dialogfx', plugins_url( 'js/modal/dialogFx.js', __FILE__ ), array( 'jquery' ), $this->version, true );
 
 		wp_enqueue_style( 'mistape-front-modal-dialog', plugins_url( 'css/modal/dialog.css', __FILE__ ), array(), $this->version );
-		wp_enqueue_style( 'mistape-front-modal-susan', plugins_url( 'css/modal/dialog-sandra.css', __FILE__ ), array(), $this->version );
+		wp_enqueue_style( 'mistape-front-modal-sandra', plugins_url( 'css/modal/dialog-sandra.css', __FILE__ ), array(), $this->version );
 		}
 
 	/**
@@ -641,6 +642,7 @@ class Deco_Mistape {
 			$output = apply_filters( 'mistape_caption_output', $output);
 
 		}
+
 		return $content . $output;
 	}
 
@@ -687,22 +689,22 @@ class Deco_Mistape {
 			// check transients for repeated reports from IP
 			$trans_name_short = 'mistape_short_ip_' . $_SERVER['REMOTE_ADDR'];
 			$trans_name_long = 'mistape_long_ip_' . $_SERVER['REMOTE_ADDR'];
-			$trans_short = get_transient( $trans_name_short );
-			$trans_long = get_transient( $trans_name_long );
-			$trans_short = is_numeric( $trans_short ) ? (int) $trans_short : 0;
-			$trans_long = is_numeric( $trans_long ) ? (int) $trans_long : 0;
+			$trans_5min = get_transient( $trans_name_short );
+			$trans_30min = get_transient( $trans_name_long );
+			$trans_5min = is_numeric( $trans_5min ) ? (int) $trans_5min : 0;
+			$trans_30min = is_numeric( $trans_30min ) ? (int) $trans_30min : 0;
 
-			if ( strstr( $context, $reported_text ) !== false ) {
-				$reported_text = str_replace( $reported_text, '<strong style="color: red;">' . $reported_text . '</strong>', $context );
-			}
+			if ( !empty( $reported_text ) && $trans_5min < 5 && $trans_30min < 30 ) {
 
-			if ( true==true || !empty( $reported_text ) && $trans_short < 5 && $trans_long < 30 ) {
+				$trans_5min++;
+				$trans_30min++;
 
-				$trans_short += 1;
-				$trans_long += 1;
+				set_transient( $trans_name_short, $trans_5min, 300 );
+				set_transient( $trans_name_long,  $trans_30min, 1800 );
 
-				set_transient( $trans_name_short, $trans_short, 300 );
-				set_transient( $trans_name_long,  $trans_long, 1800 );
+				if ( strstr( $context, $reported_text ) !== false ) {
+					$reported_text = str_replace( $reported_text, '<strong style="color: red;">' . $reported_text . '</strong>', $context );
+				}
 
 				do_action( 'mistape_process_report', $reported_text, $context );
 
@@ -715,18 +717,17 @@ class Deco_Mistape {
 
 				// referrer
 				$message = '<p>' . __( 'Reported from page:' , 'mistape' ) . ' ';
-				$message .= !empty( $url ) ? '<a href="' . $url . '">' . $url . '</a>' : _x( 'unknown' , '[Email] Reported from page: unknown', 'mistape' );
+				$message .= !empty( $url ) ? '<a href="' . $url . '">' . urldecode( $url ) . '</a>' : _x( 'unknown' , '[Email] Reported from page: unknown', 'mistape' );
 				$message .= "</p>\n";
 
 				// post edit link
-				if( $post_id ) {
-					$edit_post_link = get_edit_post_link( $post_id );
-					$message .= '<p>' . __( 'Post edit URL:' , 'mistape' ) . ' <a href="' . $edit_post_link . '">' . $edit_post_link . "</a></p>\n";
+				if( $post_id && $edit_post_link = $this->get_edit_post_link( $post_id, 'raw' ) ) {
+					$message .= '<p>' . __( 'Post edit URL:', 'mistape' ) . ' <a href="' . $edit_post_link . '">' . $edit_post_link . "</a></p>\n";
 				}
 
 				// reported by
-				if( $user ) {
-					$message .= '<p>' . __( 'Reported by:' , 'mistape' ) . ' <a href="mailto:' . $user->user_email . '">' . $user->display_name. "</a></p>\n";
+				if( $user->ID ) {
+					$message .= '<p>' . __( 'Reported by:' , 'mistape' ) . ' ' . $user->display_name. ' (' . '<a href="mailto:' . $user->user_email . '"' . ">)</a></p>\n";
 				}
 				// reported text
 				$message .= '<h3>' . __( 'Reported text' , 'mistape' ) . ":</h3>\n";
@@ -749,5 +750,28 @@ class Deco_Mistape {
 
 		die();
 	}
+	/**
+	 * duplicate of original WP function excluding user capabilities check
+	 */
+	function get_edit_post_link( $id = 0, $context = 'display' ) {
+		if ( ! $post = get_post( $id ) )
+			return;
 
+		if ( 'revision' === $post->post_type )
+			$action = '';
+		elseif ( 'display' == $context )
+			$action = '&amp;action=edit';
+		else
+			$action = '&action=edit';
+
+		$post_type_object = get_post_type_object( $post->post_type );
+		if ( !$post_type_object )
+			return;
+
+		// this part of original function is commented out
+		/*if ( !current_user_can( 'edit_post', $post->ID ) )
+			return;*/
+
+		return apply_filters( 'get_edit_post_link', admin_url( sprintf( $post_type_object->_edit_link . $action, $post->ID ) ), $post->ID, $context );
+	}
 }
