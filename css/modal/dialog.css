@@ -19,7 +19,7 @@
 
 .dialog__overlay {
 	position: absolute;
-	z-index: 1;
+	z-index: 1000000;
 	background: rgba(55, 58, 71, 0.9);
 	opacity: 0;
 	-webkit-transition: opacity 0.3s;
@@ -40,12 +40,28 @@
 	padding: 4em;
 	text-align: center;
 	position: relative;
-	z-index: 50;
+	z-index: 1000001;
 	opacity: 0;
 }
 
 .dialog--open .dialog__content {
 	pointer-events: auto;
+}
+
+.dialog__content .action{
+	cursor: pointer;
+	padding: 11px 25px;
+	font-weight: 600;
+	border: none;
+	color: #fff;
+	background: #c94e50;
+	text-decoration: none;
+	user-select: none;
+}
+
+.dialog__content .action:hover{
+	opacity: 0.9;
+	text-decoration: none;
 }
 
 /* Content */
