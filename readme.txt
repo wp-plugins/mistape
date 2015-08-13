@@ -29,9 +29,10 @@ Mistape is full of hooks enabling you to modify its behavior the way you like.
 All settings are stored in a single database entry and get wiped on plugin uninstall, so you can be sure your WP installation won't be clogged if you decide you don't want Mistape anymore (and we're sure you won't :) ).
 
 == Screenshots ==
-
 1. Configuration.
 2. Help.
+3. How it works.
+4. Mail notification.
 
 == Changelog ==
 = 1.0.1 =

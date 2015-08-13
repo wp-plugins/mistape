@@ -665,7 +665,7 @@ class Deco_Mistape {
 			<div class="dialog__content">
 				<h2>' . $strings['title'] . '</h2>
 				<h3>' . $strings['message'] . '</h2>
-				<div><button class="action" data-dialog-close>' . $strings['close'] . '</button></div>
+				<div><a class="action" data-dialog-close>' . $strings['close'] . '</a></div>
 			</div>
 		</div>';
 
@@ -727,7 +727,7 @@ class Deco_Mistape {
 
 				// reported by
 				if( $user->ID ) {
-					$message .= '<p>' . __( 'Reported by:' , 'mistape' ) . ' ' . $user->display_name. ' (' . '<a href="mailto:' . $user->user_email . '"' . ">)</a></p>\n";
+					$message .= '<p>' . __( 'Reported by:' , 'mistape' ) . ' ' . $user->display_name. ' (<a href="mailto:' . $user->data->user_email . '">' . $user->data->user_email . "</a>)</p>\n";
 				}
 				// reported text
 				$message .= '<h3>' . __( 'Reported text' , 'mistape' ) . ":</h3>\n";
