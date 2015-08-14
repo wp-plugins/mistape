@@ -2,7 +2,7 @@
 /*
 Plugin Name: Mistape
 Description: Mistape allows users to effortlessly notify site staff about found spelling errors.
-Version: 1.0.1
+Version: 1.0.2
 Author URI: https://deco.agency
 Author: deco.agency
 License: MIT License
@@ -29,7 +29,7 @@ $mistape = new Deco_Mistape();
  * Deco_Mistape class
  *
  * @class Deco_Mistape
- * @version	1.0.1
+ * @version	1.0.2
  */
 class Deco_Mistape {
 
@@ -47,7 +47,7 @@ class Deco_Mistape {
 		'caption_image_url'		=> '',
 		'first_run'				=> 'yes'
 	);
-	private $version			= '1.0.1';
+	private $version			= '1.0.2';
 	private $recipient_email	= null;
 	private $email_recipient_types	= array();
 	private $caption_formats	= array();
@@ -122,7 +122,7 @@ class Deco_Mistape {
 	 * Load textdomain
 	 */
 	public function load_textdomain() {
-		load_plugin_textdomain( 'mistape', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'mistape', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 
 	/**
